@@ -7,6 +7,7 @@ from sklearn.metrics import classification_report
 
 from dataset import ExhaustiveDataset
 from utils.torch_util import calc_f1
+from utils.path_util import from_project_root
 
 
 def evaluate(model, data_url, max_region=10, show_padding=False):
@@ -23,7 +24,7 @@ def evaluate(model, data_url, max_region=10, show_padding=False):
 
     """
     print("\nEvaluating model use data from ", data_url, "\n")
-    dataset = ExhaustiveDataset(data_url, model.device, max_region=max_region)
+    dataset = ExhaustiveDataset(data_url, next(model.parameters()).device, max_region=max_region)
     data_loader = DataLoader(dataset, batch_size=100, collate_fn=dataset.collate_func)
     model.eval()
     # switch to eval mode
@@ -65,6 +66,10 @@ def evaluate(model, data_url, max_region=10, show_padding=False):
 
 
 def main():
+    model_url = from_project_root("data/model/model.pt")
+    test_url = from_project_root("data/genia.test.iob2")
+    model = torch.load(model_url)
+    evaluate(model, test_url)
     pass
 
 

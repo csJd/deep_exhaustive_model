@@ -5,10 +5,11 @@ import torch
 import json
 import torch.nn.functional as F
 from torch.utils.data import DataLoader
+from datetime import datetime
 
 from utils.path_util import from_project_root, exists
 from utils.torch_util import set_random_seed, get_device
-from prepare_data import gen_vocab_from_data
+from dataset import gen_vocab_from_data
 from dataset import ExhaustiveDataset
 from model import ExhaustiveModel
 from eval import evaluate
@@ -31,13 +32,13 @@ def train(n_epochs=30,
           freeze=False,
           train_url=TRAIN_URL,
           dev_url=DEV_URL,
+          test_url=None,
           max_region=10,
           learning_rate=0.001,
           batch_size=100,
           early_stop=5,
           clip_norm=5,
           device='auto',
-          eval_on_test=False
           ):
     """ Train deep exhaustive model, Sohrab et al. 2018 EMNLP
 
@@ -48,13 +49,13 @@ def train(n_epochs=30,
         freeze: whether to freeze embedding
         train_url: url to train data
         dev_url: url to dev data
+        test_url: url to test data for evaluating, set to None for not evaluating
         max_region: max entity region size
         learning_rate: learning rate
         batch_size: batch_size
         early_stop: early stop for training
         clip_norm: whether to perform norm clipping, set to 0 if not need
         device: device for torch
-        eval_on_test: whether to do evaluating on test set on every epoch
     """
 
     # print arguments
@@ -120,7 +121,7 @@ def train(n_epochs=30,
             cnt = 0
 
         # metrics on test set
-        if eval_on_test:
+        if test_url is not None:
             evaluate(model, TEST_URL)
 
         print("maximum of f1 value: %.6f, in epoch #%d\n" % (max_f1, max_f1_epoch))
@@ -131,10 +132,13 @@ def train(n_epochs=30,
 
 
 def main():
+    start_time = datetime.now()
     if EMBED_URL and not exists(EMBED_URL):
-        pretrained_url = from_project_root("data/PubMed-shuffle-win-30.bin")
+        pretrained_url = from_project_root("data/embedding/PubMed-shuffle-win-30.bin")
         gen_vocab_from_data(TRAIN_URL, pretrained_url)
-    train(eval_on_test=True)
+    train()
+    print("finished in:")
+    print(datetime.now() - start_time)
     pass
 
 

@@ -3,6 +3,7 @@
 
 import numpy
 import torch
+import random
 
 
 def set_random_seed(seed):
@@ -13,8 +14,8 @@ def set_random_seed(seed):
 
     """
     torch.manual_seed(seed)
-    torch.cuda.manual_seed(seed)
     numpy.random.seed(seed)
+    random.seed(seed)
 
 
 def get_device(name='auto'):
