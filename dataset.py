@@ -191,6 +191,26 @@ def gen_vocab_from_data(data_url, pretrained_url, binary=True, update=False, min
     return embedding_url
 
 
+def infer_records(columns):
+    """ inferring all entity records of a sentence
+    Args:
+        columns: columns of a sentence in iob2 format
+    Returns:
+        entity record in gave sentence
+    """
+    records = dict()
+    for col in columns:
+        start = 0
+        while start < len(col):
+            end = start + 1
+            if col[start][0] == 'B':
+                while end < len(col) and col[end][0] == 'I':
+                    end += 1
+                records[(start, end)] = col[start][2:]
+            start = end
+    return records
+
+
 def load_raw_data(data_url, update=False):
     """ load data into sentences and records
 
@@ -245,7 +265,7 @@ def prepare_vocab(data_url, pretrained_url=PRETRAINED_URL, update=True, min_coun
 
 
 def main():
-    data_url = from_project_root("data/genia/genia.iob2")
+    data_url = from_project_root("data/genia.iob2")
     # prepare_vocab(data_url, update=False, min_count=1)
     pass
 
