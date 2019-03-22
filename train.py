@@ -108,7 +108,8 @@ def train(n_epochs=30,
                 torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=clip_norm)
             optimizer.step()
             if batch_id % 10 == 0:
-                print("epoch #%d, batch #%d, loss: %.12f" % (epoch, batch_id, loss.item()))
+                print("epoch #%d, batch #%d, loss: %.12f, %s" %
+                      (epoch, batch_id, loss.item(), datetime.now().strftime("%X")))
             batch_id += 1
 
         cnt += 1
@@ -135,7 +136,7 @@ def main():
     start_time = datetime.now()
     if EMBED_URL and not exists(EMBED_URL):
         pretrained_url = from_project_root("data/embedding/PubMed-shuffle-win-30.bin")
-        gen_vocab_from_data(TRAIN_URL, pretrained_url)
+        gen_vocab_from_data([TRAIN_URL, DEV_URL, TEST_URL], pretrained_url)
     train()
     print("finished in:")
     print(datetime.now() - start_time)

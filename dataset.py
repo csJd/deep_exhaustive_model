@@ -124,12 +124,12 @@ class ExhaustiveDataset(Dataset):
         return sentence_tensors, region_labels
 
 
-def gen_vocab_from_data(data_url, pretrained_url, binary=True, update=False, min_count=1):
+def gen_vocab_from_data(data_urls, pretrained_url, binary=True, update=False, min_count=1):
     """ generate vocabulary and embeddings from data file, generated vocab files will be saved in
         data dir
 
     Args:
-        data_url: url to data file
+        data_urls: url to data file(s), list or string
         pretrained_url: url to pretrained embedding file
         binary: binary for load word2vec
         update: force to update even vocab file exists
@@ -139,7 +139,9 @@ def gen_vocab_from_data(data_url, pretrained_url, binary=True, update=False, min
         generated word embedding url
     """
 
-    data_dir = os.path.dirname(data_url)
+    if isinstance(data_urls, str):
+        data_urls = [data_urls]
+    data_dir = os.path.dirname(data_urls[0])
     vocab_url = os.path.join(data_dir, "vocab.json")
     char_vocab_url = os.path.join(data_dir, "char_vocab.json")
     embedding_url = os.path.join(data_dir, "embeddings.npy") if pretrained_url else None
@@ -151,16 +153,17 @@ def gen_vocab_from_data(data_url, pretrained_url, binary=True, update=False, min
     vocab = set()
     char_vocab = set()
     word_counts = defaultdict(int)
-    print("generating vocab from", data_url)
-    with open(data_url, 'r', encoding='utf-8') as data_file:
-        for row in data_file:
-            if row == '\n':
-                continue
-            token = row.split()[0]
-            word_counts[token] += 1
-            if word_counts[token] > min_count:
-                vocab.add(row.split()[0])
-            char_vocab = char_vocab.union(row.split()[0])
+    print("generating vocab from", data_urls)
+    for data_url in data_urls:
+        with open(data_url, 'r', encoding='utf-8') as data_file:
+            for row in data_file:
+                if row == '\n':
+                    continue
+                token = row.split()[0]
+                word_counts[token] += 1
+                if word_counts[token] > min_count:
+                    vocab.add(row.split()[0])
+                char_vocab = char_vocab.union(row.split()[0])
 
     # sorting vocab according alphabet order
     vocab = sorted(vocab)
@@ -250,23 +253,25 @@ def load_raw_data(data_url, update=False):
     return sentences, records
 
 
-def prepare_vocab(data_url, pretrained_url=PRETRAINED_URL, update=True, min_count=1):
+def prepare_vocab(data_urls, pretrained_url=PRETRAINED_URL, update=True, min_count=1):
     """ prepare vocab and embedding
 
     Args:
-        data_url: url to data file for preparing vocab
+        data_urls: urls to data file for preparing vocab
         pretrained_url: url to pretrained embedding file
         min_count: minimum count of word
         update: force to update
 
     """
     binary = pretrained_url.endswith('.bin')
-    gen_vocab_from_data(data_url, pretrained_url, binary=binary, update=update, min_count=min_count)
+    gen_vocab_from_data(data_urls, pretrained_url, binary=binary, update=update, min_count=min_count)
 
 
 def main():
-    data_url = from_project_root("data/genia.iob2")
-    # prepare_vocab(data_url, update=False, min_count=1)
+    data_urls = [from_project_root("data/genia.train.iob2"),
+                 from_project_root("data/genia.dev.iob2"),
+                 from_project_root("data/genia.test.iob2")]
+    prepare_vocab(data_urls, update=True, min_count=1)
     pass
 
 
