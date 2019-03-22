@@ -1,18 +1,19 @@
-# A Implementation of Deep Exhaustive Model for Nested NER
+# An Implementation of Deep Exhaustive Model for Nested NER
 
 Original paper: [Deep Exhaustive model, Soharb and Miwa (2018 EMNLP)](http://aclweb.org/anthology/D18-1309)
 
 # Requirements
-* python 3
-* torch
-* numpy
-* gensim
-* scikit-learn
-* joblib
+* `python 3`
+* `ptorch`
+* `numpy`
+* `gensim`
+* `scikit-learn`
+* `joblib`
 
 # Data Format
 Our processed `GENIA` dataset is in `./data/`.
 
+The data format is the same as in [Neural Layered Model, Ju et al. 2018 NAACL](https://github.com/meizhiju/layered-bilstm-crf) 
 >Each line has multiple columns separated by a tab key. 
 >Each line contains
 >```
