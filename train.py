@@ -9,7 +9,7 @@ from datetime import datetime
 
 from utils.path_util import from_project_root, exists
 from utils.torch_util import set_random_seed, get_device
-from dataset import gen_vocab_from_data
+from dataset import prepare_vocab
 from dataset import ExhaustiveDataset
 from model import ExhaustiveModel
 from eval import evaluate
@@ -136,7 +136,7 @@ def main():
     start_time = datetime.now()
     if EMBED_URL and not exists(EMBED_URL):
         pretrained_url = from_project_root("data/embedding/PubMed-shuffle-win-30.bin")
-        gen_vocab_from_data([TRAIN_URL, DEV_URL, TEST_URL], pretrained_url)
+        prepare_vocab([TRAIN_URL, DEV_URL, TEST_URL], pretrained_url, update=True)
     train()
     print("finished in:")
     print(datetime.now() - start_time)
