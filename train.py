@@ -64,7 +64,7 @@ def train(n_epochs=30,
     device = get_device(device)
 
     train_set = ExhaustiveDataset(train_url, device=device, max_region=max_region)
-    train_loader = DataLoader(train_set, batch_size=batch_size, drop_last=True,
+    train_loader = DataLoader(train_set, batch_size=batch_size, drop_last=False,
                               collate_fn=train_set.collate_func)
 
     model = ExhaustiveModel(
@@ -91,6 +91,7 @@ def train(n_epochs=30,
 
     max_f1, max_f1_epoch, cnt = 0, 0, 0
     tag_weights = torch.Tensor(TAG_WEIGHTS).to(device)
+    best_model_url = None
 
     # train and evaluate model
     for epoch in range(n_epochs):
@@ -118,16 +119,17 @@ def train(n_epochs=30,
         if dev_metrics['f1'] > max_f1:
             max_f1 = dev_metrics['f1']
             max_f1_epoch = epoch
-            torch.save(model, from_project_root("data/model/exhaustive_model_epoch%d_%f.pt" % (epoch, max_f1)))
+            best_model_url = from_project_root("data/model/exhaustive_model_epoch%d_%f.pt" % (epoch, max_f1))
+            torch.save(model, best_model_url)
             cnt = 0
-
-        # metrics on test set
-        if test_url is not None:
-            evaluate(model, TEST_URL)
 
         print("maximum of f1 value: %.6f, in epoch #%d\n" % (max_f1, max_f1_epoch))
         if cnt >= early_stop > 0:
             break
+
+    if test_url and best_model_url:
+        model = torch.load(best_model_url)
+        evaluate(model, test_url)
 
     print(arguments)
 
@@ -137,7 +139,7 @@ def main():
     if EMBED_URL and not exists(EMBED_URL):
         pretrained_url = from_project_root("data/embedding/PubMed-shuffle-win-30.bin")
         prepare_vocab([TRAIN_URL, DEV_URL, TEST_URL], pretrained_url, update=True)
-    train()
+    train(test_url=TEST_URL)
     print("finished in:")
     print(datetime.now() - start_time)
     pass
