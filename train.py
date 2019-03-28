@@ -98,7 +98,7 @@ def train(n_epochs=30,
         # switch to train mode
         model.train()
         batch_id = 0
-        for data, labels in train_loader:
+        for data, labels, _ in train_loader:
             optimizer.zero_grad()
             outputs = model.forward(*data)
             # use weight parameter to skip padding part

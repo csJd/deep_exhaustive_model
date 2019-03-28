@@ -121,7 +121,7 @@ class ExhaustiveDataset(Dataset):
         region_labels = torch.LongTensor(region_labels).to(self.device)
         # (batch_size, n_regions)
 
-        return sentence_tensors, region_labels
+        return sentence_tensors, region_labels, records_list
 
 
 def gen_vocab_from_data(data_urls, pretrained_url, binary=True, update=False, min_count=1):
