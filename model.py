@@ -30,6 +30,8 @@ class ExhaustiveModel(nn.Module):
             hidden_size=char_feat_dim // 2,
         ) if char_feat_dim > 0 else None
 
+        self.dropout = nn.Dropout(p=0.5)
+
         self.lstm = nn.LSTM(
             input_size=self.word_repr_dim,
             hidden_size=hidden_size,
@@ -69,6 +71,8 @@ class ExhaustiveModel(nn.Module):
             # concatenate char level representation and word level one
             word_repr = torch.cat([word_repr, char_feat], dim=-1)
             # word_repr shape: (batch_size, max_sent_len, word_repr_dim)
+
+        # word_repr = self.dropout(word_repr)
 
         packed = nn.utils.rnn.pack_padded_sequence(word_repr, sentence_lengths, batch_first=True)
         out, (hn, _) = self.lstm(packed)

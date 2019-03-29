@@ -33,12 +33,14 @@ def evaluate(model, data_url):
         for data, labels, records_list in data_loader:
             batch_region_labels = torch.argmax(model.forward(*data), dim=1).cpu()
             lengths = data[1]
+            batch_maxlen = lengths[0]
             for region_labels, length, true_records in zip(batch_region_labels, lengths, records_list):
                 pred_records = {}
                 ind = 0
                 for region_size in range(1, max_region + 1):
-                    for start in range(0, lengths[0] - region_size + 1):
-                        if 0 < region_labels[ind] < 6:
+                    for start in range(0, batch_maxlen - region_size + 1):
+                        end = start + region_size
+                        if 0 < region_labels[ind] < 6 and end <= length:
                             pred_records[(start, start + region_size)] = region_labels[ind]
                         ind += 1
 
