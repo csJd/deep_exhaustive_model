@@ -3,8 +3,8 @@
 Original paper: [Deep Exhaustive model, Soharb and Miwa (2018 EMNLP)](http://aclweb.org/anthology/D18-1309)
 
 # Requirements
-* `python 3`
-* `ptorch`
+* `python3`
+* `pytorch`
 * `numpy`
 * `gensim`
 * `scikit-learn`
