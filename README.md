@@ -3,12 +3,12 @@
 Original paper: [Deep Exhaustive model, Soharb and Miwa (2018 EMNLP)](http://aclweb.org/anthology/D18-1309)
 
 # Requirements
-* `python3`
-* `pytorch`
-* `numpy`
-* `gensim`
-* `scikit-learn`
-* `joblib`
+* `python        3.6.7`
+* `pytorch       1.0.0`
+* `numpy         1.15.3`
+* `gensim        3.6.0`
+* `scikit-learn  0.20.0`
+* `joblib        0.12.5`
 
 # Data Format
 Our processed `GENIA` dataset is in `./data/`.
@@ -51,7 +51,7 @@ Download pre-trained embedding above, unzip it, and place `PubMed-shuffle-win-30
 ```sh
 python3 train.py
 ```
-trained model will saved at `./data/model/`
+trained best model will be saved at `./data/model/`
 ## Testing
  set `model_url` to the url of saved model in training in `main()` of `eval.py`
 ```sh
