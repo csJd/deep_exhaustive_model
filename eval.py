@@ -44,7 +44,7 @@ def evaluate(model, data_url):
                 for region_size in range(1, max_region + 1):
                     for start in range(0, batch_maxlen - region_size + 1):
                         end = start + region_size
-                        if 0 < region_labels[ind] < 6 and end <= length:
+                        if 0 < region_labels[ind] < dataset.n_tags and end <= length:
                             pred_records[(start, start + region_size)] = region_labels[ind]
                         ind += 1
 
@@ -52,7 +52,7 @@ def evaluate(model, data_url):
                 region_pred_count += len(pred_records)
 
                 for region in true_records:
-                    true_label = dataset.label_ids[true_records[region]]
+                    true_label = dataset.label_list.index(true_records[region])
                     pred_label = pred_records[region] if region in pred_records else 0
                     region_true_list.append(true_label)
                     region_pred_list.append(pred_label)
@@ -62,7 +62,7 @@ def evaluate(model, data_url):
                         region_true_list.append(0)
 
     print(classification_report(region_true_list, region_pred_list,
-                                target_names=list(dataset.label_ids)[:6], digits=6))
+                                target_names=dataset.label_list, digits=6))
 
     ret = dict()
     tp = 0
@@ -76,7 +76,7 @@ def evaluate(model, data_url):
     return ret
 
 
-def predict(model, sentences):
+def predict(model, sentences, labels):
     """ predict NER result for sentence list
 
     Args:
@@ -92,7 +92,6 @@ def predict(model, sentences):
     tensors = gen_sentence_tensors(
         sentences, device, from_project_root('data/vocab.json'))
     pred_regions_list = torch.argmax(model.forward(*tensors), dim=1).cpu()
-    labels = list(ExhaustiveDataset.label_ids)
 
     lengths = tensors[1]
     pred_sentence_records = []
@@ -101,7 +100,7 @@ def predict(model, sentences):
         ind = 0
         for region_size in range(1, max_region + 1):
             for start in range(0, lengths[0] - region_size + 1):
-                if pred_regions[ind] > 0 and pred_regions[ind] != 6:
+                if 0 < pred_regions[ind] < len(labels):
                     pred_records[(start, start + region_size)] = \
                         labels[pred_regions[ind]]
                 ind += 1
@@ -130,7 +129,7 @@ def predict_on_iob2(model, iob_url):
             save_file.write(' '.join(sentence) + '\n')
             save_file.write("length = {} \n".format(len(sentence)))
             save_file.write("Gold: {}\n".format(str(records)))
-            pred_result = str(predict(model, [sentence])[0])
+            pred_result = str(predict(model, [sentence], test_set.label_list)[0])
             save_file.write("Pred: {}\n\n".format(pred_result))
 
 

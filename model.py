@@ -9,7 +9,7 @@ import numpy as np
 class ExhaustiveModel(nn.Module):
 
     def __init__(self, hidden_size, n_tags, max_region, embedding_url=None, bidirectional=True, lstm_layers=1,
-                 n_embeddings=None, embedding_dim=None, freeze=False, char_feat_dim=100):
+                 n_embeddings=None, embedding_dim=None, freeze=False, char_feat_dim=100, n_chars = 100):
         super().__init__()
 
         if embedding_url:
@@ -25,7 +25,7 @@ class ExhaustiveModel(nn.Module):
         self.word_repr_dim = self.embedding_dim + self.char_feat_dim
 
         self.char_repr = CharLSTM(
-            n_chars=100,
+            n_chars=n_chars,
             embedding_size=char_feat_dim // 2,
             hidden_size=char_feat_dim // 2,
         ) if char_feat_dim > 0 else None

@@ -13,10 +13,6 @@ from torch.nn.utils.rnn import pad_sequence
 from utils.path_util import from_project_root, dirname
 import utils.json_util as ju
 
-np.random.seed(233)
-LABEL_IDS = {"DNA": 1, "RNA": 2, "protein": 3, "cell_line": 4, "cell_type": 5}
-PRETRAINED_URL = from_project_root("data/embedding/PubMed-shuffle-win-30.bin")
-
 
 def gen_sentence_tensors(sentence_list, device, data_url):
     """ generate input tensors from sentence list
@@ -84,11 +80,16 @@ def gen_sentence_tensors(sentence_list, device, data_url):
 
 
 class ExhaustiveDataset(Dataset):
-    label_ids = {"neither": 0, "DNA": 1, "RNA": 2, "protein": 3, "cell_line": 4, "cell_type": 5, "padding": 6}
 
     def __init__(self, data_url, device, max_region=10):
         super().__init__()
         self.x, self.y = load_raw_data(data_url)
+
+        labels = set()
+        for dic in self.y:
+            labels = labels.union(dic.values())
+        self.label_list = ['NA'] + sorted(labels)
+        self.n_tags = len(self.label_list)
         self.data_url = data_url
         self.max_region = max_region
         self.device = device
@@ -112,9 +113,9 @@ class ExhaustiveDataset(Dataset):
             for region_size in range(1, self.max_region + 1):
                 for start in range(0, max_sent_len - region_size + 1):
                     if start + region_size > length:
-                        labels.append(6)
+                        labels.append(self.n_tags)  # for padding
                     elif (start, start + region_size) in records:
-                        labels.append(self.label_ids[records[start, start + region_size]])
+                        labels.append(self.label_list.index(records[start, start + region_size]))
                     else:
                         labels.append(0)
             region_labels.append(labels)
@@ -253,7 +254,7 @@ def load_raw_data(data_url, update=False):
     return sentences, records
 
 
-def prepare_vocab(data_urls, pretrained_url=PRETRAINED_URL, update=True, min_count=1):
+def prepare_vocab(data_urls, pretrained_url, update=True, min_count=1):
     """ prepare vocab and embedding
 
     Args:
@@ -263,8 +264,8 @@ def prepare_vocab(data_urls, pretrained_url=PRETRAINED_URL, update=True, min_cou
         update: force to update
 
     """
-    binary = pretrained_url.endswith('.bin')
-    gen_vocab_from_data(data_urls, pretrained_url, binary=binary, update=update, min_count=min_count)
+    binary = pretrained_url and pretrained_url.endswith('.bin')
+    return gen_vocab_from_data(data_urls, pretrained_url, binary=binary, update=update, min_count=min_count)
 
 
 def main():
