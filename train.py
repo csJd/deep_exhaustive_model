@@ -20,7 +20,7 @@ from eval import evaluate
 RANDOM_SEED = 233
 set_random_seed(RANDOM_SEED)
 
-# EMBD_URL = None  # fot not use pretrained embeding
+# EMBD_URL = None  # fot not use pretrained embedding
 EMBD_URL = from_project_root("data/embedding/PubMed-shuffle-win-30.bin")
 VOCAB_URL = from_project_root("data/vocab.json")
 TRAIN_URL = from_project_root("data/genia.train.iob2")
