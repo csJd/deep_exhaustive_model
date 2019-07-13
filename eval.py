@@ -76,21 +76,23 @@ def evaluate(model, data_url):
     return ret
 
 
-def predict(model, sentences, labels):
+def predict(model, sentences, labels, data_url):
     """ predict NER result for sentence list
 
     Args:
         model: trained model
         sentences: sentences to be predicted
+        labels: label list to transform id to label
+        data_url: data_url to locate vocab files, `vocab.json` and `char_vocab.json` should be in the folder of data_url
 
     Returns:
-        predicted results
+        predicted results [[(start, end): type, ], ]
 
     """
     max_region = model.max_region
     device = next(model.parameters()).device
     tensors = gen_sentence_tensors(
-        sentences, device, from_project_root('data/vocab.json'))
+        sentences, device, data_url)
     pred_regions_list = torch.argmax(model.forward(*tensors), dim=1).cpu()
 
     lengths = tensors[1]
@@ -129,7 +131,7 @@ def predict_on_iob2(model, iob_url):
             save_file.write(' '.join(sentence) + '\n')
             save_file.write("length = {} \n".format(len(sentence)))
             save_file.write("Gold: {}\n".format(str(records)))
-            pred_result = str(predict(model, [sentence], test_set.label_list)[0])
+            pred_result = str(predict(model, [sentence], test_set.label_list, iob_url)[0])
             save_file.write("Pred: {}\n\n".format(pred_result))
 
 
