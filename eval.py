@@ -52,7 +52,7 @@ def evaluate(model, data_url):
                 region_pred_count += len(pred_records)
 
                 for region in true_records:
-                    true_label = dataset.label_list.index(true_records[region])
+                    true_label = dataset.categories.index(true_records[region])
                     pred_label = pred_records[region] if region in pred_records else 0
                     region_true_list.append(true_label)
                     region_pred_list.append(pred_label)
@@ -62,7 +62,7 @@ def evaluate(model, data_url):
                         region_true_list.append(0)
 
     print(classification_report(region_true_list, region_pred_list,
-                                target_names=dataset.label_list, digits=6))
+                                target_names=dataset.categories, digits=6))
 
     ret = dict()
     tp = 0
@@ -76,17 +76,17 @@ def evaluate(model, data_url):
     return ret
 
 
-def predict(model, sentences, labels, data_url):
+def predict(model, sentences, categories, data_url):
     """ predict NER result for sentence list
 
     Args:
         model: trained model
         sentences: sentences to be predicted
-        labels: label list to transform id to label
+        categories: category list to transform id into category
         data_url: data_url to locate vocab files, `vocab.json` and `char_vocab.json` should be in the folder of data_url
 
     Returns:
-        predicted results [[(start, end): type, ], ]
+        predicted results [ {(start, end): type, }, ]
 
     """
     max_region = model.max_region
@@ -102,9 +102,9 @@ def predict(model, sentences, labels, data_url):
         ind = 0
         for region_size in range(1, max_region + 1):
             for start in range(0, lengths[0] - region_size + 1):
-                if 0 < pred_regions[ind] < len(labels):
+                if 0 < pred_regions[ind] < len(categories):
                     pred_records[(start, start + region_size)] = \
-                        labels[pred_regions[ind]]
+                        categories[pred_regions[ind]]
                 ind += 1
         pred_sentence_records.append(pred_records)
     return pred_sentence_records
@@ -131,7 +131,7 @@ def predict_on_iob2(model, iob_url):
             save_file.write(' '.join(sentence) + '\n')
             save_file.write("length = {} \n".format(len(sentence)))
             save_file.write("Gold: {}\n".format(str(records)))
-            pred_result = str(predict(model, [sentence], test_set.label_list, iob_url)[0])
+            pred_result = str(predict(model, [sentence], test_set.categories, iob_url)[0])
             save_file.write("Pred: {}\n\n".format(pred_result))
 
 

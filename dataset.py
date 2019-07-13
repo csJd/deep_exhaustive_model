@@ -85,11 +85,11 @@ class ExhaustiveDataset(Dataset):
         super().__init__()
         self.x, self.y = load_raw_data(data_url)
 
-        labels = set()
+        categories = set()
         for dic in self.y:
-            labels = labels.union(dic.values())
-        self.label_list = ['NA'] + sorted(labels)
-        self.n_tags = len(self.label_list)
+            categories = categories.union(dic.values())
+        self.categories = ['NA'] + sorted(categories)
+        self.n_tags = len(self.categories)
         self.data_url = data_url
         self.max_region = max_region
         self.device = device
@@ -115,7 +115,7 @@ class ExhaustiveDataset(Dataset):
                     if start + region_size > length:
                         labels.append(self.n_tags)  # for padding
                     elif (start, start + region_size) in records:
-                        labels.append(self.label_list.index(records[start, start + region_size]))
+                        labels.append(self.categories.index(records[start, start + region_size]))
                     else:
                         labels.append(0)
             region_labels.append(labels)
