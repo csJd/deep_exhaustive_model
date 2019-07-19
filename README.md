@@ -1,6 +1,6 @@
 # An Implementation of Deep Exhaustive Model for Nested NER
 
-Original paper: [Deep Exhaustive model, Soharb and Miwa (2018 EMNLP)](http://aclweb.org/anthology/D18-1309)
+Original paper: [Sohrab, M. G., & Miwa, M. (2018). Deep Exhaustive Model for Nested Named Entity Recognition. In 2018 EMNLP](http://aclweb.org/anthology/D18-1309)
 
 # Requirements
 * `python        3.6.7`
